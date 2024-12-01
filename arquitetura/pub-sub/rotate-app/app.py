@@ -9,6 +9,8 @@ OUT_FOLDER = '/processed/rotate/'
 NEW = '_rotate'
 IN_FOLDER = "/appdata/static/uploads/"
 
+producer = Producer({'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka1:19091,kafka2:19092,kafka3:19093')})
+
 def create_rotate(path_file):
     pathname, filename = os.path.split(path_file)
     output_folder = pathname + OUT_FOLDER
@@ -21,6 +23,10 @@ def create_rotate(path_file):
 
     name, ext = os.path.splitext(filename)
     transposed.save(output_folder + name + NEW + ext)
+
+    message = json.dumps({"file": filename, "operation": "rotatacionado"})
+    producer.produce('notifications', message)
+    producer.flush()
 
 
 #sleep(30)
